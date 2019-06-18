@@ -5,6 +5,7 @@ import HumanBody from '../Components/HumanBody'
 import Card from '../Components/Card'
 import axios from 'axios'
 import { expression } from '@babel/template';
+import gaugeImg from '../Resources/credit-score-range.png'
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -52,6 +53,26 @@ const CardWrapper = styled.div`
   padding: 0px 5px;
 `
 
+const GaugeContainer = styled.div`
+border: solid black 1px;
+  display: flex;
+  flex: 1;
+  align-self: center;
+  justify-content: center;
+  height: 250px;
+  width: 500px;
+  background: url(${gaugeImg});
+  background-repeat: no-repeat;
+  background-size: contain;
+`
+
+const Gauge = styled.div`
+  width: 16px;
+  height: 90%;
+  transform: rotate(${props => props.rotate || 0}deg);
+  transform-origin: 50% 100%;
+  background: black;
+`
 
 const Dashboard = () => {
   const [loading, setLoad] = useState(true)
@@ -59,8 +80,8 @@ const Dashboard = () => {
   let textSentiment = [],
     facialExpressions = [],
     expressionRate = [],
-    cleanFE = {}
-
+    cleanFE = {},
+    sentiments = 0.5
 
   const separateSentiments = (metrics) => {
     if (metrics && metrics.length > 0) {
@@ -85,6 +106,13 @@ const Dashboard = () => {
           : expressions[fe]
       }, {})
     })
+
+    sentiments = textSentiment
+      ? textSentiment.length > 0
+        ? textSentiment.reduce((acc, curr) => acc + curr, 0) / textSentiment.length
+        : 0
+      : 0
+
     // console.log(cleanFE, facialExpressions.length)
   }
 
@@ -109,6 +137,9 @@ const Dashboard = () => {
           ? `Loading...`
           :
           (<div>
+            <GaugeContainer>
+              <Gauge rotate={(sentiments * 180) - 90} />
+            </GaugeContainer>
             <DashRow>
               <DashboardGraphContainer>
                 <HumanBody
