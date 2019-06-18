@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import HumanBody from '../Components/HumanBody'
 import Card from '../Components/Card'
 import axios from 'axios'
+import { expression } from '@babel/template';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -55,9 +56,11 @@ const CardWrapper = styled.div`
 const Dashboard = () => {
   const [loading, setLoad] = useState(true)
   const [data, setData] = useState({})
-  let textSentiment = []
-    , facialExpressions = []
-    , expressionRate = []
+  let textSentiment = [],
+    facialExpressions = [],
+    expressionRate = [],
+    cleanFE = {}
+
 
   const separateSentiments = (metrics) => {
     if (metrics && metrics.length > 0) {
@@ -66,7 +69,7 @@ const Dashboard = () => {
           expressionRate = [...expressionRate, JSON.parse(m.Value)]
           // console.log(expressionRate)
         } else if (m.Metric.includes('Expression Count')) {
-          facialExpressions = [...facialExpressions, m.Value]
+          facialExpressions = [...facialExpressions, JSON.parse(m.Value)]
           // console.log(facialExpressions)
         } else {
           textSentiment = [...textSentiment, m.Value]
@@ -74,6 +77,15 @@ const Dashboard = () => {
         }
       })
     }
+
+    facialExpressions.map(expressions => {
+      Object.keys(expressions).reduce((acc, fe) => {
+        cleanFE[fe] = cleanFE[fe]
+          ? cleanFE[fe] + expressions[fe]
+          : expressions[fe]
+      }, {})
+    })
+    // console.log(cleanFE, facialExpressions.length)
   }
 
   useEffect(() => (
