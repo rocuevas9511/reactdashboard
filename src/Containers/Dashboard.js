@@ -51,23 +51,42 @@ const CardWrapper = styled.div`
   padding: 0px 5px;
 `
 
-const checkMaxProp = (metrics) => {
-  console.log(metrics)
-}
 
 const Dashboard = () => {
   const [loading, setLoad] = useState(true)
-  const [data, setData] = useState({})
+  const [data, setData] = useState({}) 
+  let textSentiment = []
+    , facialExpressions = []
+    , expressionRate = []
+  
+  const separateSentiments = (metrics) => {
+    if (metrics && metrics.length > 0) {
+      metrics.map((m) => {
+        if (m.Metric.includes('Expression Rate')) {
+          expressionRate = [...expressionRate, JSON.parse(m.Value)]
+          // console.log(expressionRate)
+        } else if (m.Metric.includes('Expression Count')) {
+          facialExpressions = [...facialExpressions, m.Value]
+          // console.log(facialExpressions)
+        } else {
+          textSentiment = [...textSentiment, m.Value]
+          // console.log(textSentiment)
+        }
+      })
+    }
+  }
 
   useEffect(() => (
     axios.get('https://carebotdashboards.azurewebsites.net/satisfaction')
-      .then(res => {
-        return setData(res.data)
-      })
-      .catch(err => console.log(err))
-      .finally(() => setLoad(false))
+          .then(res => {
+            return setData(res.data)
+          })
+          .catch(err => console.log(err))
+          .finally(() => setLoad(false))
   ), [])
-  console.log(data)
+
+  separateSentiments(data)
+  // console.log(expressionRate)
   return (
     <DashboardContainer>
       <DashTitle>
@@ -75,63 +94,16 @@ const Dashboard = () => {
       </DashTitle>
       {
         loading
-          ? `Loading...`
-          : (
-            <div>
-
-              <DashRow>
-                <DashboardGraphContainer>
-                  <HumanBody
-                    emotions={data}
-                    fill='#ADFCGD'
-                  />
-
-                </DashboardGraphContainer>
-
-              </DashRow>
-              <SecondaryRow>
-                <div style={{paddingTop: "25px"}}></div>
-                
-                <CardWrapper>
-                  <Card
-                    days="Past 25 days"  
-                    title="Happiness"
-                    change="+24%"
-                    type="happy"
-                    />
-                </CardWrapper>
-                
-                <CardWrapper>
-                  <Card 
-                  days="Past 25 days"  
-                  title="Anger"
-                  change="+4%"
-                  type="anger"
-                  />
-                </CardWrapper>
-                
-                <CardWrapper>
-                  <Card 
-                  days="Past 25 days"  
-                  title="Sadness"
-                  change="-18%"
-                  type="sad"
-                  />
-                </CardWrapper>
-                
-                <CardWrapper>
-                  <Card 
-                  days="Past 25 days"  
-                  title="Satisfied"
-                  change="+200%"
-                  type="satisfied"
-                  />
-                </CardWrapper>
-                
-              </SecondaryRow>
-            </div>
-          )
-
+        ? `Loading...`
+        : <DashRow>
+          <DashboardGraphContainer>
+            <HumanBody 
+              textSentiment={textSentiment}
+              facialExpressions={facialExpressions}
+              expressionRate={expressionRate}
+            />
+          </DashboardGraphContainer>
+        </DashRow>
       }
     </DashboardContainer>
   )
