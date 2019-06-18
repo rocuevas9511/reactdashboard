@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import HumanBody from '../Components/HumanBody'
 import Card from '../Components/Card'
 import axios from 'axios'
+import gaugeImg from '../Resources/credit-score-range.png'
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -16,24 +17,9 @@ const DashboardContainer = styled.div`
   overflow-y: hidden;
   align-items: center;
 `
-const DashboardGraphContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  justify-items: center;
-  align-content: center;
-  align-items: center;
-  height: 100%;
-  flex: 1;
-  background: #F4F4FC;
-  padding: 5px;
-  &:hover {
-    box-shadow: 7px 11px 23px -9px rgba(180,180,180,1);
-  }
-`
 const DashColumn = styled.div`
   display: flex;
   flex: 1;
-  height: 50vh;
   align-self: center;
   align-items: space-between;
   flex-direction: column;
@@ -53,8 +39,13 @@ const DashRow = styled.div`
   align-content: center;
   justify-content: space-evenly;
   width: 100%;
+  flex: 1;
   padding-top: 25px;
   overflow-y: hidden;
+  max-height: 80vh;
+  &:hover {
+    overflow-y: scroll;
+  }
 `
 const DashTitle = styled.h2`
   font-weight: 600;
@@ -65,13 +56,35 @@ const CardWrapper = styled.div`
   margin-bottom: 5%
 `
 
+const GaugeContainer = styled.div`
+  margin: 1%;
+  display: flex;
+  flex: 1;
+  align-self: center;
+  justify-content: center;
+  height: 125px;
+  width: 250px;
+  background: url(${gaugeImg});
+  background-repeat: no-repeat;
+  background-size: contain;
+`
+
+const Gauge = styled.div`
+  width: 8px;
+  height: 90%;
+  transform: rotate(${props => props.rotate || 0}deg);
+  transform-origin: 50% 100%;
+  background: black;
+`
 
 const Dashboard = () => {
   const [loading, setLoad] = useState(true)
   const [data, setData] = useState({})
-  let textSentiment = []
-    , facialExpressions = []
-    , expressionRate = []
+  let textSentiment = [],
+    facialExpressions = [],
+    expressionRate = [],
+    cleanFE = {},
+    sentiments = 0.5
 
   const separateSentiments = (metrics) => {
     if (metrics && metrics.length > 0) {
@@ -80,7 +93,7 @@ const Dashboard = () => {
           expressionRate = [...expressionRate, JSON.parse(m.Value)]
           // console.log(expressionRate)
         } else if (m.Metric.includes('Expression Count')) {
-          facialExpressions = [...facialExpressions, m.Value]
+          facialExpressions = [...facialExpressions, JSON.parse(m.Value)]
           // console.log(facialExpressions)
         } else {
           textSentiment = [...textSentiment, m.Value]
@@ -88,6 +101,22 @@ const Dashboard = () => {
         }
       })
     }
+
+    facialExpressions.map(expressions => {
+      Object.keys(expressions).reduce((acc, fe) => {
+        cleanFE[fe] = cleanFE[fe]
+          ? cleanFE[fe] + expressions[fe]
+          : expressions[fe]
+      }, {})
+    })
+
+    sentiments = textSentiment
+      ? textSentiment.length > 0
+        ? textSentiment.reduce((acc, curr) => acc + curr, 0) / textSentiment.length
+        : 0
+      : 0
+
+    // console.log(cleanFE, facialExpressions.length)
   }
 
   useEffect(() => (
@@ -117,9 +146,13 @@ const Dashboard = () => {
                   textSentiment={textSentiment}
                   facialExpressions={facialExpressions}
                   expressionRate={expressionRate}
+                  size='medium'
                 />
+              <GaugeContainer>
+                <Gauge rotate={(sentiments * 180) - 90} />
+              </GaugeContainer>
               </DashColumn>
-              <DashColumn>
+              <DashColumn fixed={true}>
                 <CardWrapper>
                   <Card
                     days="Past 25 days"
