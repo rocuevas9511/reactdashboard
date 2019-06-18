@@ -20,13 +20,22 @@ const HumanBody = ({
   className = '',
   height = '100%',
   viewBox = '0 0 32 32',
-  facialExpressions = [],
+  facialExpressions = {},
   expressionRate = [],
   textSentiment = [],
   size = 'large'
 }) => {
   const averageSentiment = (sentiments) => {
-    return sentiments ? sentiments.length > 0 ? sentiments.reduce((acc, curr) => acc+curr, 0) / textSentiment.length : 0 : 0
+    let max = 0,
+        maxKey = ''
+
+    Object.keys(sentiments).map(k => {
+      if (sentiments[k] > max) {
+        maxKey = k
+        max = sentiments[k]
+      }
+    })
+    return maxKey
   }
 
   const displayRates = (expressions) => {
@@ -48,10 +57,9 @@ const HumanBody = ({
   // const averageExpressions = (expressions) => {
   //   return 
   // }
-  averageSentiment(textSentiment)
-  const maxEmotion = displayRates(expressionRate)
+  
   let color = ''
-  switch (maxEmotion.maxEmotionString) {
+  switch (averageSentiment(facialExpressions)) {
     case 'Anger':
       color = '#FC0404'
       break
@@ -126,8 +134,8 @@ const HumanBody = ({
       </svg>
       <div>
         {
-          maxEmotion.maxEmotionString 
-            ? `Currently, the site seems to be showing signs of ${maxEmotion.maxEmotionString.toLowerCase()}`
+          averageSentiment(facialExpressions)
+            ? `Currently, the site seems to be showing signs of ${averageSentiment(facialExpressions).toLowerCase()}`
             : 'There was an error retrieving the information, please try again later.'
         }
       </div>

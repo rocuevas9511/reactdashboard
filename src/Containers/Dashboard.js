@@ -29,6 +29,8 @@ const DashColumn = styled.div`
   overflow-y: hidden;
   margin-left: 5%;
   margin-right: 5%;
+  height: 100%;
+  padding: 1em;
   &:hover {
     overflow-y: ${props => !props.fixed ? 'scroll' : 'hidden'}
   }
@@ -40,12 +42,7 @@ const DashRow = styled.div`
   justify-content: space-evenly;
   width: 100%;
   flex: 1;
-  padding-top: 25px;
-  overflow-y: hidden;
   max-height: 80vh;
-  &:hover {
-    overflow-y: scroll;
-  }
 `
 const DashTitle = styled.h2`
   font-weight: 600;
@@ -53,13 +50,12 @@ const DashTitle = styled.h2`
 `
 const CardWrapper = styled.div`
   padding: 0px 5px;
-  margin-bottom: 5%
+  margin: 1em;
 `
 
 const GaugeContainer = styled.div`
   margin: 1%;
   display: flex;
-  flex: 1;
   align-self: center;
   justify-content: center;
   height: 125px;
@@ -83,7 +79,8 @@ const Dashboard = () => {
   let textSentiment = [],
     facialExpressions = [],
     expressionRate = [],
-    cleanFE = {},
+    cleanFE1 = {},
+    cleanFE2 = {},
     sentiments = 0.5
 
   const separateSentiments = (metrics) => {
@@ -102,11 +99,18 @@ const Dashboard = () => {
       })
     }
 
-    facialExpressions.map(expressions => {
+    facialExpressions.map((expressions, i) => {
       Object.keys(expressions).reduce((acc, fe) => {
-        cleanFE[fe] = cleanFE[fe]
-          ? cleanFE[fe] + expressions[fe]
-          : expressions[fe]
+        if (i < facialExpressions.length / 2) {
+          cleanFE1[fe] = cleanFE1[fe]
+            ? cleanFE1[fe] + expressions[fe]
+            : expressions[fe]
+        } else {
+          cleanFE2[fe] = cleanFE2[fe]
+            ? cleanFE2[fe] + expressions[fe]
+            : expressions[fe]
+        }
+
       }, {})
     })
 
@@ -116,7 +120,6 @@ const Dashboard = () => {
         : 0
       : 0
 
-    // console.log(cleanFE, facialExpressions.length)
   }
 
   useEffect(() => (
@@ -141,53 +144,33 @@ const Dashboard = () => {
           :
           (
             <DashRow>
-              <DashColumn fixed={true}>
+              <DashColumn fixed>
                 <HumanBody
                   textSentiment={textSentiment}
-                  facialExpressions={facialExpressions}
+                  facialExpressions={cleanFE1}
                   expressionRate={expressionRate}
                   size='medium'
                 />
-              <GaugeContainer>
-                <Gauge rotate={(sentiments * 180) - 90} />
-              </GaugeContainer>
+                <GaugeContainer>
+                  <Gauge rotate={(sentiments * 180) - 90} />
+                </GaugeContainer>
               </DashColumn>
-              <DashColumn fixed={true}>
-                <CardWrapper>
-                  <Card
-                    days="Past 25 days"
-                    title="Happiness"
-                    change="+24%"
-                    type="happy"
-                  />
-                </CardWrapper>
+              <DashColumn>
+                {
+                  Object.keys(cleanFE1).map(exp => {
+                    const calc = 1 - (cleanFE1[exp] / cleanFE2[exp]) * 100
 
-                <CardWrapper>
-                  <Card
-                    days="Past 25 days"
-                    title="Anger"
-                    change="+4%"
-                    type="anger"
-                  />
-                </CardWrapper>
-
-                <CardWrapper>
-                  <Card
-                    days="Past 25 days"
-                    title="Sadness"
-                    change="-18%"
-                    type="sad"
-                  />
-                </CardWrapper>
-
-                <CardWrapper>
-                  <Card
-                    days="Past 25 days"
-                    title="Satisfied"
-                    change="+200%"
-                    type="satisfied"
-                  />
-                </CardWrapper>
+                    return (
+                    <CardWrapper key={exp}>
+                      <Card
+                        days="Past 25 days"
+                        title={exp}
+                        change={`${isNaN(calc) ? 0 : calc.toFixed(2)} %`}
+                        type={exp.toLowerCase()}
+                      />
+                    </CardWrapper>
+                  )})
+                }
               </DashColumn>
             </DashRow>
           )

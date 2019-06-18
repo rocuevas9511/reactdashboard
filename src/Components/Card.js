@@ -45,30 +45,30 @@ export default function SimpleCard( props ) {
         </Typography>
         <Typography variant="h5" component="h2">
           {
-            type === 'happy' ? <SmileIcon></SmileIcon> : null
+            type === 'happiness' ? <SmileIcon></SmileIcon> : null
           }
           {
             type === 'anger' ? <MoodBad></MoodBad> : null
           }
           {
-            type === 'sad' ? <Sentimental></Sentimental> : null
+            type === 'sadness' ? <Sentimental></Sentimental> : null
           }
           {
-            type === 'satisfied' ? <Satisfied></Satisfied> : null
+            type === 'neutral' ? <Satisfied></Satisfied> : null
           }
           {" "}{title}
           {bull}
           {change}
         </Typography>
         
-        <Typography variant="body2" component="p">
+        {/* <Typography variant="body2" component="p">
           well meaning and kindly.
           <br />
           {'"a benevolent smile"'}
-        </Typography>
+        </Typography> */}
       </CardContent>
       <CardActions>
-        <Button size="small">Learn More</Button>
+        {/* <Button size="small">Learn More</Button> */}
       </CardActions>
     </Card>
   );
