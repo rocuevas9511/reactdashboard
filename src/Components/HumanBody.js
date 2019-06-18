@@ -1,4 +1,17 @@
 import React from 'react'
+import styled from 'styled-components'
+
+const SVGContainer = styled.div`
+  height: 65vh;
+  width: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  justify-items: center;
+`
 
 const HumanBody = ({
   style = {},
@@ -9,8 +22,8 @@ const HumanBody = ({
   viewBox = '0 0 32 32',
   facialExpressions = [],
   expressionRate = [],
-  textSentiment = []
-
+  textSentiment = [],
+  size = 'large'
 }) => {
   const averageSentiment = (sentiments) => {
     return sentiments ? sentiments.length > 0 ? sentiments.reduce((acc, curr) => acc+curr, 0) / textSentiment.length : 0 : 0
@@ -69,9 +82,9 @@ const HumanBody = ({
   }
   // averageExpressions(facialExpressions)
   return (
-    <>
+    <SVGContainer>
       <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-        width="206.326px" height="206.326px" viewBox="0 0 206.326 206.326" style={style}
+        width={size === 'large' ? '600px' : size === 'medium' ? '450px' : '250px'} height={size === 'large' ? '600px' : size === 'medium' ? '450px' : '250px'} viewBox="0 0 206.326 206.326" style={style}
         xmlSpace="preserve">
         <g>
           <g>
@@ -112,9 +125,13 @@ const HumanBody = ({
         </g>
       </svg>
       <div>
-        {`Currently, the site seems to be showing signs of ${maxEmotion.maxEmotionString.toLowerCase()}`}
+        {
+          maxEmotion.maxEmotionString 
+            ? `Currently, the site seems to be showing signs of ${maxEmotion.maxEmotionString.toLowerCase()}`
+            : 'There was an error retrieving the information, please try again later.'
+        }
       </div>
-    </>
+    </SVGContainer>
   )
 }
 

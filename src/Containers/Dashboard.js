@@ -19,29 +19,42 @@ const DashboardContainer = styled.div`
 const DashboardGraphContainer = styled.div`
   display: flex;
   justify-content: center;
+  justify-items: center;
   align-content: center;
+  align-items: center;
   height: 100%;
-  width: 30%;
+  flex: 1;
   background: #F4F4FC;
   padding: 5px;
   &:hover {
     box-shadow: 7px 11px 23px -9px rgba(180,180,180,1);
   }
 `
-const DashRow = styled.div`
+const DashColumn = styled.div`
   display: flex;
-  width: 100%;
-  flex-direction: row;
+  flex: 1;
+  height: 50vh;
+  align-self: center;
+  align-items: space-between;
+  flex-direction: column;
   align-content: center;
+  justify-items: center;
   justify-content: space-evenly;
+  overflow-y: hidden;
+  margin-left: 5%;
+  margin-right: 5%;
+  &:hover {
+    overflow-y: ${props => !props.fixed ? 'scroll' : 'hidden'}
+  }
 `
-const SecondaryRow = styled.div`
+const DashRow = styled.div`
   display: flex;
   flex-direction: row;
   align-content: center;
   justify-content: space-evenly;
   width: 100%;
   padding-top: 25px;
+  overflow-y: hidden;
 `
 const DashTitle = styled.h2`
   font-weight: 600;
@@ -49,6 +62,7 @@ const DashTitle = styled.h2`
 `
 const CardWrapper = styled.div`
   padding: 0px 5px;
+  margin-bottom: 5%
 `
 
 
@@ -96,59 +110,54 @@ const Dashboard = () => {
         loading
           ? `Loading...`
           :
-          (<div>
+          (
             <DashRow>
-              <DashboardGraphContainer>
+              <DashColumn fixed={true}>
                 <HumanBody
                   textSentiment={textSentiment}
                   facialExpressions={facialExpressions}
                   expressionRate={expressionRate}
                 />
-              </DashboardGraphContainer>
+              </DashColumn>
+              <DashColumn>
+                <CardWrapper>
+                  <Card
+                    days="Past 25 days"
+                    title="Happiness"
+                    change="+24%"
+                    type="happy"
+                  />
+                </CardWrapper>
+
+                <CardWrapper>
+                  <Card
+                    days="Past 25 days"
+                    title="Anger"
+                    change="+4%"
+                    type="anger"
+                  />
+                </CardWrapper>
+
+                <CardWrapper>
+                  <Card
+                    days="Past 25 days"
+                    title="Sadness"
+                    change="-18%"
+                    type="sad"
+                  />
+                </CardWrapper>
+
+                <CardWrapper>
+                  <Card
+                    days="Past 25 days"
+                    title="Satisfied"
+                    change="+200%"
+                    type="satisfied"
+                  />
+                </CardWrapper>
+              </DashColumn>
             </DashRow>
-            <SecondaryRow>
-              <div style={{ paddingTop: "25px" }}></div>
-
-              <CardWrapper>
-                <Card
-                  days="Past 25 days"
-                  title="Happiness"
-                  change="+24%"
-                  type="happy"
-                />
-              </CardWrapper>
-
-              <CardWrapper>
-                <Card
-                  days="Past 25 days"
-                  title="Anger"
-                  change="+4%"
-                  type="anger"
-                />
-              </CardWrapper>
-
-              <CardWrapper>
-                <Card
-                  days="Past 25 days"
-                  title="Sadness"
-                  change="-18%"
-                  type="sad"
-                />
-              </CardWrapper>
-
-              <CardWrapper>
-                <Card
-                  days="Past 25 days"
-                  title="Satisfied"
-                  change="+200%"
-                  type="satisfied"
-                />
-              </CardWrapper>
-
-            </SecondaryRow>
-
-
-          </div>)
+          )
 
       }
     </DashboardContainer>
