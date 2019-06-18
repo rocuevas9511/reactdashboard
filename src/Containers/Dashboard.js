@@ -40,23 +40,42 @@ const DashTitle = styled.h2`
   color: #303030;
 `
 
-const checkMaxProp = (metrics) => {
-  console.log(metrics)
-}
 
 const Dashboard = () => {
   const [loading, setLoad] = useState(true)
   const [data, setData] = useState({}) 
+  let textSentiment = []
+    , facialExpressions = []
+    , expressionRate = []
+  
+  const separateSentiments = (metrics) => {
+    if (metrics && metrics.length > 0) {
+      metrics.map((m) => {
+        if (m.Metric.includes('Expression Rate')) {
+          expressionRate = [...expressionRate, JSON.parse(m.Value)]
+          // console.log(expressionRate)
+        } else if (m.Metric.includes('Expression Count')) {
+          facialExpressions = [...facialExpressions, m.Value]
+          // console.log(facialExpressions)
+        } else {
+          textSentiment = [...textSentiment, m.Value]
+          // console.log(textSentiment)
+        }
+      })
+    }
+  }
 
   useEffect(() => (
     axios.get('https://carebotdashboards.azurewebsites.net/satisfaction')
-                .then(res => {
-                  return setData(res.data)
-                })
-                .catch(err => console.log(err))
-                .finally(() => setLoad(false))
+          .then(res => {
+            return setData(res.data)
+          })
+          .catch(err => console.log(err))
+          .finally(() => setLoad(false))
   ), [])
-  console.log(data)
+
+  separateSentiments(data)
+  // console.log(expressionRate)
   return (
     <DashboardContainer>
       <DashTitle>
@@ -68,8 +87,9 @@ const Dashboard = () => {
         : <DashRow>
           <DashboardGraphContainer>
             <HumanBody 
-              emotions={data}
-              fill='#ADFCGD'
+              textSentiment={textSentiment}
+              facialExpressions={facialExpressions}
+              expressionRate={expressionRate}
             />
           </DashboardGraphContainer>
         </DashRow>
